@@ -1,11 +1,11 @@
 package com.erickmp.onlinestore.shopping.domain.repository.entity;
 
+import com.erickmp.onlinestore.shopping.domain.model.Customer;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.Valid;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "tbl_invoices")
-public class Invoice implements Serializable {
+public class Invoice  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,6 +38,9 @@ public class Invoice implements Serializable {
     private List<InvoiceItems> items;
 
     private String state;
+
+    @Transient
+    private Customer customer;
 
     public Invoice(){
         items = new ArrayList<>();

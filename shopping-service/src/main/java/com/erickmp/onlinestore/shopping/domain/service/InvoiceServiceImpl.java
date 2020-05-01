@@ -1,19 +1,35 @@
 package com.erickmp.onlinestore.shopping.domain.service;
 
 import com.erickmp.onlinestore.shopping.domain.InvoiceService;
+import com.erickmp.onlinestore.shopping.domain.client.CustomerClient;
+import com.erickmp.onlinestore.shopping.domain.client.ProductClient;
+import com.erickmp.onlinestore.shopping.domain.model.Customer;
+import com.erickmp.onlinestore.shopping.domain.model.Product;
+import com.erickmp.onlinestore.shopping.domain.repository.InvoiceItemsRepository;
 import com.erickmp.onlinestore.shopping.domain.repository.InvoiceRepository;
 import com.erickmp.onlinestore.shopping.domain.repository.entity.Invoice;
+import com.erickmp.onlinestore.shopping.domain.repository.entity.InvoiceItems;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
 
+    private final InvoiceItemsRepository invoiceItemsRepository;
     private final InvoiceRepository invoiceRepository;
+    private final CustomerClient customerClient;
+    private final ProductClient productClient;
 
-    public InvoiceServiceImpl(InvoiceRepository invoiceRepository) {
+    @Autowired
+    public InvoiceServiceImpl(InvoiceItemsRepository invoiceItemsRepository, InvoiceRepository invoiceRepository, CustomerClient customerClient, ProductClient productClient) {
+        this.invoiceItemsRepository = invoiceItemsRepository;
         this.invoiceRepository = invoiceRepository;
+        this.customerClient = customerClient;
+        this.productClient = productClient;
     }
 
     @Override
@@ -28,7 +44,12 @@ public class InvoiceServiceImpl implements InvoiceService {
             return invoiceDB;
         }
         invoice.setState("CREATED");
-        return invoiceRepository.save(invoice);
+        invoiceDB= invoiceRepository.save(invoice);
+        invoiceDB.getItems().forEach( invoiceItems -> {
+            productClient.updateStockProduct(invoiceItems.getProductId(), invoiceItems.getQuantity()* -1);
+        } );
+
+        return invoiceDB;
     }
 
     @Override
@@ -40,7 +61,6 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoiceDB.setCustomerId(invoice.getCustomerId());
         invoiceDB.setDescription(invoice.getDescription());
         invoiceDB.setNumberInvoice(invoice.getNumberInvoice());
-        invoiceDB.setItems(invoice.getItems());
         invoiceDB.getItems().clear();
         invoiceDB.setItems(invoice.getItems());
         return invoiceRepository.save(invoiceDB);
@@ -59,6 +79,17 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public Invoice getInvoice(Long id) {
-        return invoiceRepository.findById(id).orElse(null);
+        Invoice invoice = invoiceRepository.findById(id).orElse(null);
+        if (null != invoice){
+            Customer customer = customerClient.getCustomer(invoice.getCustomerId()).getBody();
+            invoice.setCustomer(customer);
+            List<InvoiceItems> listItems = invoice.getItems().stream().map(invoiceItems -> {
+                Product product = productClient.getProduct(invoiceItems.getProductId()).getBody();
+                invoiceItems.setProduct(product);
+                return invoiceItems;
+            }).collect(Collectors.toList());
+            invoice.setItems(listItems);
+        }
+        return invoice;
     }
 }

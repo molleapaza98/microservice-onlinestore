@@ -101,8 +101,8 @@ public class ProductRest {
     }
 
     //----------------Update Stock to Product---------------------------------
-    @PutMapping(value = "/{id}/stock/{quantity}")
-    public ResponseEntity<Product> updateStockProduct(@PathVariable Long id, @PathVariable Double quantity){
+    @GetMapping(value = "/{id}/stock")
+    public ResponseEntity<Product> updateStockProduct(@PathVariable  Long id ,@RequestParam(name = "quantity", required = true) Double quantity){
         log.info("Update stock product : {} with quantity {}",id,quantity);
         Product product = productService.getProduct(id);
         if (product == null){

@@ -1,5 +1,6 @@
 package com.erickmp.onlinestore.shopping.domain.repository.entity;
 
+import com.erickmp.onlinestore.shopping.domain.model.Product;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -23,6 +24,9 @@ public class InvoiceItems {
 
     @Transient
     private Double subTotal;
+
+    @Transient
+    private Product product;
 
     public Double getSubtotal(){
         if(this.price>0 && this.quantity > 0){
