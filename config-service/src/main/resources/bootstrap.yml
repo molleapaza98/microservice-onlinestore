@@ -1,0 +1,16 @@
+server:
+  port: 8090
+
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/molleapaza98/microservices-config-data
+          searchPaths: ConfigData
+        native:
+          searchLocations: classpath:offline-repository/
+  security:
+    user:
+      name: root
+      password: s3cr3t

@@ -1,0 +1,40 @@
+package com.erickmp98.onlinestore.product.domain.repository.entity;
+
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import java.io.Serializable;
+import java.util.Date;
+
+@Data
+@Entity
+@Table(name = "tbl_products")
+public class Product implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @NotEmpty(message = "name value must not be empty")
+    private String name;
+    private String description;
+    @Positive(message = "stock value must be greater than zero")
+    private Double stock;
+    private Double price;
+    private String status;
+
+    @Column(name = "create_at")
+    @Temporal(TemporalType.DATE)
+    private Date createAt;
+
+    @NotNull(message = "value category must not be null")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Category category;
+
+}
