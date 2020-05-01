@@ -2,9 +2,11 @@ package com.erickmp.onlinestore.customer.domain;
 
 import com.erickmp.onlinestore.customer.domain.repository.entity.Customer;
 import com.erickmp.onlinestore.customer.domain.repository.entity.Region;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 import java.util.List;
 
+@EnableDiscoveryClient
 public interface CustomerService {
 
     public List<Customer> findCustomerAll();
